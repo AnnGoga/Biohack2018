@@ -41,4 +41,11 @@ shadowJar {
     manifest {
         attributes "Main-Class": "$mainClassName"
     }
+
+    doLast {
+        copy {
+            from 'build/libs/banding.jar'
+            into '../../rundir/'
+        }
+    }
 }
