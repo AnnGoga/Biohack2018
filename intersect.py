@@ -48,6 +48,7 @@ def main():
 
     df_intersection = pd.concat(dfs, axis=1)
     df_intersection.to_csv(output, sep=',', header=False, index=None)
+    print('Saved', output)
 
 
 if __name__ == "__main__":
