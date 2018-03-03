@@ -42,7 +42,7 @@ def main():
                     'bedtools intersect -sorted -a {} -b {} -c'.format(tmp.name,
                                                       regions), shell=True, stdout=ino)
             print('Bins intersection', i, tmp.name, 'vs', regions, intersection_name)
-            bin_intersect_df = pd.read_table(intersection_name, sep='\t', names=['chr', 'start', 'end', 'count'])
+            bin_intersect_df = pd.read_table(intersection_name, sep='\t', names=['chr', 'start', 'end', 'count'])['count']
             bin_intersect_df.index = df.index
             dfs.append(bin_intersect_df)
 
