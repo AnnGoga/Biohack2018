@@ -32,14 +32,13 @@ def main():
         # print(df[['chr', 'bin_start', 'bin_end']].head())
 
         with tempfile.NamedTemporaryFile(mode='w', suffix='_bin{}.bed4'.format(i),
-                                         prefix=str(df['name'][0]),
                                          delete=False) as tmp:
             df[['chr', 'bin_start', 'bin_end']].to_csv(tmp.name, sep='\t', header=False, index=None)
 
             intersection_name = tmp.name + '_intersect.bed'
             with open(intersection_name, 'w') as ino:
                 subprocess.call(
-                    'bedtools intersect -sorted -a {} -b {} -c'.format(tmp.name,
+                    'bedtools intersect -sorted -a {} -b {} -c -wa'.format(tmp.name,
                                                       regions), shell=True, stdout=ino)
             print('Bins intersection', i, tmp.name, 'vs', regions, intersection_name)
             bin_intersect_df = pd.read_table(intersection_name, sep='\t', names=['chr', 'start', 'end', 'count'])['count']
