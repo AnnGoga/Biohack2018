@@ -39,7 +39,7 @@ def main():
             intersection_name = tmp.name + '_intersect.bed'
             with open(intersection_name, 'w') as ino:
                 subprocess.call(
-                    'bedtools intersect -sorted -a {} -b {} -c'.format(tmp.name,
+                    'bedtools intersect -sorted -a {} -b {} -c -wa'.format(tmp.name,
                                                       regions), shell=True, stdout=ino)
             print('Bins intersection', i, tmp.name, 'vs', regions, intersection_name)
             bin_intersect_df = pd.read_table(intersection_name, sep='\t', names=['chr', 'start', 'end', 'count'])['count']
