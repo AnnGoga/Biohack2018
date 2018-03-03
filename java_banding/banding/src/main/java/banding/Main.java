@@ -114,8 +114,8 @@ public class Main {
 
         Dataset<Row> referenceDataset = dataFrameReader
                 .load(path)
-                .filter(col("gieStain").equalTo("gpos100")
-                        .or(col("gieStain").equalTo("gpos75")))
+//                .filter(col("gieStain").equalTo("gpos100")
+//                        .or(col("gieStain").equalTo("gpos75")))
                 .select("chrom", "chromStart", "chromEnd", "gieStain");
 
         // TODO remove List<Row> rows and do map() by Spark API?
