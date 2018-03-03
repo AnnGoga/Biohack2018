@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib 
 matplotlib.style.use('ggplot')
 
-url = "dataForGraph"
+url = sys.argv[1]
 
 with open(url) as f:
     for line in f:
