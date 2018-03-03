@@ -4,6 +4,8 @@ import sys
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+
 # matplotlib.style.use('ggplot')
 sns.set_style("whitegrid")
 
@@ -23,7 +25,7 @@ def plot(output, file):
     # print('bins', set(pdf['bin']))
     # print('values', set(pdf['value']))
 
-    plt.figure(figsize=(10, 4))
+    plt.figure(figsize=(20, 5))
     sns.barplot(data=pdf, x='bin', y='value', capsize=.2, ci="sd", errwidth=2)
 
     # sns.regplot(pdf['bin'], pdf['value'])
@@ -32,8 +34,31 @@ def plot(output, file):
     plt.close()
 
 
-def logfc(output, param, param1):
-    pass
+def logfc(output, file1, file2):
+    df1 = pd.read_table(file1, header=None, sep=',')
+    print('dim', len(df1), 'x', len(df1.columns))
+
+    df2 = pd.read_table(file2, header=None, sep=',')
+    print('dim', len(df2), 'x', len(df2.columns))
+
+    df1_avg = df1.T.mean(axis=1)
+    # print(df1_avg.head())
+
+    df2_avg = df2.T.mean(axis=1)
+    print(len(df1_avg))
+    # print(df2_avg.head())
+
+    df_logfc = np.log(df1_avg / df2_avg)
+    df_logfc.fillna(value=0, inplace=True)
+
+    df_2plot = pd.DataFrame()
+    df_2plot['bin'] = df_logfc.index
+    df_2plot['logfc'] = df_logfc
+    plt.figure(figsize=(20, 5))
+    sns.barplot(data=df_2plot, x='bin', y='logfc', capsize=.2, ci="sd", errwidth=2)
+    plt.savefig(output)
+    plt.close()
+    print('Saved', output)
 
 
 def heatmap(output, files):
