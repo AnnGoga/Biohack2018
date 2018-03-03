@@ -24,7 +24,7 @@ def plot(output, file):
     # print('values', set(pdf['value']))
 
     plt.figure(figsize=(10, 4))
-    sns.barplot(data=pdf, x='bin', y='value', capsize=.2)
+    sns.barplot(data=pdf, x='bin', y='value', capsize=.2, ci="sd", errwidth=2)
 
     # sns.regplot(pdf['bin'], pdf['value'])
     plt.savefig(output)
