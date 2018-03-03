@@ -1,10 +1,9 @@
 import getopt
+import subprocess
 import sys
 import tempfile
-from subprocess import run
 
 import pandas as pd
-import subprocess
 
 
 def main():
@@ -16,7 +15,7 @@ def main():
             return 'NO HELP HERE'
 
     if len(args) != 4:
-        print("ARGS: CONSERVATION FILE BINS OUTPUT")
+        print("ARGS: CONSERVATION.BW FILE BINS OUTPUT")
         return
 
     conservation = args[0]
