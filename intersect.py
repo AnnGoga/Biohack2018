@@ -32,7 +32,6 @@ def main():
         # print(df[['chr', 'bin_start', 'bin_end']].head())
 
         with tempfile.NamedTemporaryFile(mode='w', suffix='_bin{}.bed4'.format(i),
-                                         prefix=str(df['name'][0]),
                                          delete=False) as tmp:
             df[['chr', 'bin_start', 'bin_end']].to_csv(tmp.name, sep='\t', header=False, index=None)
 
