@@ -1,8 +1,11 @@
 import getopt
 import sys
-
+import os
 import pandas as pd
 import seaborn as sns
+import matplotlib
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,6 +14,7 @@ sns.set_style("whitegrid")
 
 
 def plot(output, file):
+    print('PLOT')
     df = pd.read_table(file, header=None, sep=',')
     print('dim', len(df), 'x', len(df.columns))
     df = df.T
@@ -27,14 +31,15 @@ def plot(output, file):
 
     plt.figure(figsize=(20, 5))
     sns.barplot(data=pdf, x='bin', y='value', capsize=.2, ci="sd", errwidth=2)
-
-    # sns.regplot(pdf['bin'], pdf['value'])
+    xs = [str(i) for i in range(0, len(set(pdf['bin'])))]
+    plt.xticks(np.arange(len(xs)), xs, rotation='vertical')
     plt.savefig(output)
     print('Saved to', output)
     plt.close()
 
 
 def logfc(output, file1, file2):
+    print('LOGFC')
     df1 = pd.read_table(file1, header=None, sep=',')
     print('dim', len(df1), 'x', len(df1.columns))
 
@@ -56,13 +61,36 @@ def logfc(output, file1, file2):
     df_2plot['logfc'] = df_logfc
     plt.figure(figsize=(20, 5))
     sns.barplot(data=df_2plot, x='bin', y='logfc', capsize=.2, ci="sd", errwidth=2)
+    xs = [str(i) for i in range(0, len(set(df_2plot['bin'])))]
+    plt.xticks(np.arange(len(xs)), xs, rotation='vertical')
     plt.savefig(output)
     plt.close()
     print('Saved', output)
 
 
 def heatmap(output, files):
-    pass
+    print('HEATMAP')
+    dfs = pd.DataFrame()
+    for file in files:
+        df = pd.read_table(file, header=None, sep=',')
+        print('dim', len(df), 'x', len(df.columns))
+
+        df_avg = df.T.mean(axis=1)
+        dfs[os.path.basename(file)] = df_avg
+    dfs = dfs.T
+    print(dfs.head())
+    print(len(dfs))
+    dfs = dfs[dfs.columns].astype(float)
+    plt.figure(figsize=(20, len(dfs)))
+    sns.heatmap(dfs)
+    xs = [str(i) for i in dfs.T.index]
+    plt.xticks(np.arange(len(xs)), xs, rotation='vertical')
+    ys = [str(i) for i in dfs.T.columns]
+    print(ys)
+    plt.yticks(np.arange(len(ys)), ys, rotation='horizontal')
+    plt.savefig(output)
+    plt.close()
+    print('Saved', output)
 
 
 def main():
