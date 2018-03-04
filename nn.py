@@ -2,15 +2,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from keras import metrics
 from keras.callbacks import ReduceLROnPlateau
 from keras.layers import Activation, Dense, Dropout, BatchNormalization
-from keras.layers import LeakyReLU, ThresholdedReLU, PReLU, ELU
+from keras.layers import LeakyReLU
 from keras.models import Sequential
 from keras.utils import to_categorical
-from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.cross_validation import StratifiedKFold, cross_val_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 
 train_df = pd.read_csv('result/train.csv', sep=',')
 print(train_df.head(1))
@@ -46,7 +43,7 @@ def nn(x_train, y_train, x_test, y_test, actinput, op, los, k1, k2):
     except:
         model.add(actinput())
 
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.99))
 
     model.add(Dense(k2,
                     # activity_regularizer=l2(0.01)
@@ -61,20 +58,19 @@ def nn(x_train, y_train, x_test, y_test, actinput, op, los, k1, k2):
         model.add(Activation(actinput))
     except:
         model.add(actinput())
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=5, verbose=1)
     ##    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 
     ##    loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
     model.compile(optimizer=op,
                   loss=los,
-                  metrics=['accuracy'])
+                  metrics=[metrics.categorical_accuracy])
 
     history = model.fit(x_train, y_train,
-                        epochs=1,
+                        epochs=10,
                         # batch_size=int(col / 10),
-                        verbose=1,
+                        # verbose=1,
                         validation_data=(x_test, y_test),
-                        shuffle=True,
+                        # shuffle=True,
                         # callbacks=[reduce_lr]
                         )
 
@@ -115,24 +111,35 @@ activate_functions = [
     # 'sigmoid',
     # 'hard_sigmoid',
     LeakyReLU,
-    ThresholdedReLU,
-    PReLU,
-    ELU,
+    # ThresholdedReLU,
+    # PReLU,
+    # ELU,
 ]
 
 # lost function to go with
+# loss_functions = [
+#     'binary_crossentropy',
+#     # 'categorical_hinge',
+#     'categorical_crossentropy',
+#     # 'sparse_categorical_crossentropy',
+# ]
+
 loss_functions = [
-    'binary_crossentropy',
-    # 'categorical_hinge',
-    'categorical_crossentropy',
-    # 'sparse_categorical_crossentropy',
+    'categorical_hinge',
+    # 'mean_squared_logarithmic_error', 'squared_hinge', 'hinge',
+    # 'mean_squared_error',
+    # 'mean_absolute_error', 'mean_absolute_percentage_error',
+    # 'logcosh', 'categorical_crossentropy',
+    # # 'sparse_categorical_crossentropy',
+    # 'binary_crossentropy',
+    # 'kullback_leibler_divergence', 'poisson', 'cosine_proximity'
 ]
 
 # Optimizers
 optimizers = [
-    # 'sgd',
+    'sgd',
     # 'adam',
-    'rmsprop',
+    # 'rmsprop',
     # 'adagrad',
     # 'adadelta',
     # 'adamax',
@@ -184,28 +191,28 @@ ep = 100
 t = 0
 print("Start NN")
 attempt = 0
-min_acc = 100
-min_model = None
-min_history = None
+max_acc = -100
+max_model = None
+max_history = None
 while attempt < 1000:
     for op in optimizers:
-        for hl in [8, 64]:
+        for hl in [4, 8, 64, 128]:
             for af in activate_functions:
                 for lf in loss_functions:
-                    print('OP', op, "AF", af, 'LF', lf)
+                    print('HL', hl, 'OP', op, "AF", af, 'LF', lf)
                     score, model, history = nn(x_train, y_train, x_test, y_test, af, op, lf, hl, hl)
                     print("Attempt", attempt, 'Score', score)
                     attempt += 1
-                    if np.isfinite(score[0]):
-                        min_acc = score[1]
-                        min_model = model
-                        min_history = history
+                    if np.isfinite(score[0]) and max_acc < score[1]:
+                        max_acc = score[1]
+                        max_model = model
+                        max_history = history
                         print("NN, attempts", attempt, "loss", score[0], 'acc', score[1])
     break
 
-if min_model is not None:
+if max_model is not None:
     name = 'best_model'
     # min_model.save('result/' + name + '.h5')
-    vis(min_history, 'result/' + name, name + '_' + str(min_acc))
+    vis(max_history, 'result/' + name, name + '_' + str(max_acc))
 
 print('FAILED to optimize NN, attempts', attempt)

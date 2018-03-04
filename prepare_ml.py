@@ -24,12 +24,13 @@ except:
 features = ['SMC1A', 'PARP1', 'Spi1', 'PAF1', 'SMC3',
             'H4K20me1', 'H3K4me3', 'H3K36me3', 'Rad21', 'H3K9Me3', 'H2AFZ',
             'H3K27Me3', 'STAG1', 'PRKCQ', 'CTCF', 'ERCC6',
-            'gc', 'cons']
+            # 'gc', 'cons'
+            ]
 stains = {
-    'gpos25': 1,
-    'gpos75': 1,
+    'gpos25': 0,
+    'gpos75': 0,
     'gpos100': 1,
-    'gpos50': 1,
+    'gpos50': 0,
     'acen': 0,
     'gvar': 0,
     'stalk': 0,
