@@ -7,6 +7,10 @@ from keras.layers import Activation, Dense, Dropout, BatchNormalization
 from keras.layers import LeakyReLU, ThresholdedReLU, PReLU, ELU
 from keras.models import Sequential
 from keras.utils import to_categorical
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.cross_validation import StratifiedKFold, cross_val_score
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 train_df = pd.read_csv('result/train.csv', sep=',')
 print(train_df.head(1))
@@ -66,12 +70,12 @@ def nn(x_train, y_train, x_test, y_test, actinput, op, los, k1, k2):
                   metrics=['accuracy'])
 
     history = model.fit(x_train, y_train,
-                        epochs=100,
-                        batch_size=int(col / 10),
+                        epochs=1,
+                        # batch_size=int(col / 10),
                         verbose=1,
                         validation_data=(x_test, y_test),
                         shuffle=True,
-                        callbacks=[reduce_lr]
+                        # callbacks=[reduce_lr]
                         )
 
     score = model.evaluate(x_test, y_test)
@@ -100,17 +104,68 @@ def vis(history, file, name):
 
 
 # Available activation functions
-activate_functions = ['elu', 'selu', 'softplus', 'softsign', 'relu',
-                      'tanh', 'sigmoid', 'hard_sigmoid', 'softmax', LeakyReLU, ThresholdedReLU, PReLU, ELU]
+activate_functions = [
+    # 'elu',
+    # 'selu',
+    # 'softplus',
+    # 'softsign',
+    # 'softmax',
+    # 'relu',
+    # 'tanh',
+    # 'sigmoid',
+    # 'hard_sigmoid',
+    LeakyReLU,
+    ThresholdedReLU,
+    PReLU,
+    ELU,
+]
 
 # lost function to go with
-loss_functions = ['categorical_hinge',
-                  'categorical_crossentropy',
-                  'sparse_categorical_crossentropy',
-                  'binary_crossentropy']
+loss_functions = [
+    'binary_crossentropy',
+    # 'categorical_hinge',
+    'categorical_crossentropy',
+    # 'sparse_categorical_crossentropy',
+]
 
 # Optimizers
-optimizers = ['rmsprop', 'adagrad', 'adadelta', 'adam', 'adamax', 'nadam', 'sgd']
+optimizers = [
+    # 'sgd',
+    # 'adam',
+    'rmsprop',
+    # 'adagrad',
+    # 'adadelta',
+    # 'adamax',
+    # 'nadam',
+]
+
+# def create_smaller():
+#     model = Sequential()
+#     model.add(Dense(30, input_dim=60, kernel_initializer='normal', activation='relu'))
+#     model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+#     # Compile model
+#     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+#     return model
+#
+#
+# x = pd.concat([train_df, test_df]).as_matrix([c for c in train_df.columns if c != 'stain'])
+# y = pd.concat([train_df, test_df]).as_matrix(['stain'])
+#
+# estimators = [
+#     ('standardize', StandardScaler()),
+#     ('mlp', KerasClassifier(build_fn=create_smaller, epochs=100, batch_size=5, verbose=0))
+# ]
+# pipeline = Pipeline(estimators)
+# # fit = pipeline.fit(x_train, y_train)
+# # score = pipeline.score(x_test, y_test)
+# # print(score)
+# # exit(0)
+#
+# # kfold = StratifiedKFold(n_folds=10, shuffle=True, random_state=seed)
+# results = cross_val_score(pipeline, x, y)
+# print("Smaller: %.2f%% (%.2f%%)" % (results.mean() * 100, results.std() * 100))
+#
+# exit(0)
 
 # save each best model for setting = n
 score = [0, -1]
@@ -133,19 +188,20 @@ min_acc = 100
 min_model = None
 min_history = None
 while attempt < 1000:
-    op = optimizers[0]
-    for hl in [8, 16, 32, 64]:
-        for af in activate_functions:
-            for lf in loss_functions:
-                print("AF", af, 'LF', lf)
-                score, model, history = nn(x_train, y_train, x_test, y_test, af, op, lf, hl, hl)
-                print("Attempt", attempt, 'Score', score)
-                attempt += 1
-                if np.isfinite(score[0]):
-                    min_acc = score[1]
-                    min_model = model
-                    min_history = history
-                    print("NN, attempts", attempt, "loss", score[0], 'acc', score[1])
+    for op in optimizers:
+        for hl in [8, 64]:
+            for af in activate_functions:
+                for lf in loss_functions:
+                    print('OP', op, "AF", af, 'LF', lf)
+                    score, model, history = nn(x_train, y_train, x_test, y_test, af, op, lf, hl, hl)
+                    print("Attempt", attempt, 'Score', score)
+                    attempt += 1
+                    if np.isfinite(score[0]):
+                        min_acc = score[1]
+                        min_model = model
+                        min_history = history
+                        print("NN, attempts", attempt, "loss", score[0], 'acc', score[1])
+    break
 
 if min_model is not None:
     name = 'best_model'

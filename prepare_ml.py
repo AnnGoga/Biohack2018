@@ -25,7 +25,16 @@ features = ['SMC1A', 'PARP1', 'Spi1', 'PAF1', 'SMC3',
             'H4K20me1', 'H3K4me3', 'H3K36me3', 'Rad21', 'H3K9Me3', 'H2AFZ',
             'H3K27Me3', 'STAG1', 'PRKCQ', 'CTCF', 'ERCC6',
             'gc', 'cons']
-stains = ['gneg', 'gpos25', 'gpos75', 'gpos100', 'gpos50', 'acen', 'gvar', 'hist', 'stalk']
+stains = {
+    'gpos25': 1,
+    'gpos75': 1,
+    'gpos100': 1,
+    'gpos50': 1,
+    'acen': 0,
+    'gvar': 0,
+    'stalk': 0,
+    'gneg': 0,
+}
 
 train_dfs = []
 test_dfs = []
@@ -37,8 +46,8 @@ for file in files:
     if feature_name not in features or stain_name not in stains:
         print('UNKNOWN file', feature_name, stain_name, file)
         continue
-    feature_id = str(features.index(feature_name))
-    stain_id = str(stains.index(stain_name))
+    feature_id = features.index(feature_name)
+    stain_id = stains[stain_name]
     # print('LOADING feature file', feature_name, stain_name, file)
     feature_df = pd.read_table(file, sep=',',
                                names=['A' + str(k) for k in range(100)])
